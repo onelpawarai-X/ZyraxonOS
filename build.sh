@@ -170,6 +170,18 @@ chmod +x "$ROOT/usr/share/zyraxonos/tools/install-tools.sh"
 chroot "$ROOT" /usr/share/zyraxonos/tools/install-tools.sh --all \
   || say "toolset reported an issue (non-fatal)"
 
+# fill in the names that map to a different Debian package, plus the
+# PyPI-only tools
+say "filling in the mapped + PyPI toolset"
+chroot "$ROOT" /usr/share/zyraxonos/tools/fill-tools.sh \
+  || say "fill step reported an issue (non-fatal)"
+
+# the tools that only live upstream on GitHub (nuclei, subfinder, ffuf,
+# termshark, airgeddon, responder, wifiphisher, evilginx2)
+say "building the upstream-only (GitHub) tools"
+chroot "$ROOT" /usr/share/zyraxonos/tools/build-github-tools.sh \
+  || say "github tool build reported an issue (non-fatal)"
+
 # animated (video) wallpapers need mpvpaper, which Debian does not package
 say "building mpvpaper (animated wallpaper support)"
 if ! chroot "$ROOT" bash -c 'command -v mpvpaper >/dev/null 2>&1'; then

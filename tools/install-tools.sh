@@ -29,20 +29,30 @@ done
 apt_install() {  # install whatever exists, ignore the rest
   local pkgs=() p cand
   for p in "$@"; do
+    # Already installed? skip — never re-resolve 600 names every run.
+    if dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q "install ok installed"; then
+      continue
+    fi
     # A real candidate must exist; virtual packages report "(none)".
     cand="$(apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/{print $2; exit}')"
     if [ -n "$cand" ] && [ "$cand" != "(none)" ]; then pkgs+=("$p"); fi
   done
   [ ${#pkgs[@]} -eq 0 ] && return 0
-  if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-       "${pkgs[@]}" >>"$LOG" 2>&1; then
-    return 0
+  # Batch as big as possible: apt resolves the whole set in one shot.
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    "${pkgs[@]}" >>"$LOG" 2>&1 && return 0
+  # A single unsatisfiable name must not drop the batch: drop it and retry.
+  local bad
+  bad="$(grep -aoE "Package '[^']+' has no installation candidate|E: Unable to locate package [^ ]+" "$LOG" | tail -1)"
+  if [ -n "$bad" ]; then
+    local drop; drop="$(printf '%s' "$bad" | sed -E "s/.*'([^']+)'.*/\1/; s/.*package //")"
+    local keep=()
+    for p in "${pkgs[@]}"; do [ "$p" = "$drop" ] || keep+=("$p"); done
+    if [ ${#keep[@]} -gt 0 ] && [ ${#keep[@]} -lt ${#pkgs[@]} ]; then
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        "${keep[@]}" >>"$LOG" 2>&1 || true
+    fi
   fi
-  # One bad name must not drop the whole batch: retry one by one.
-  for p in "${pkgs[@]}"; do
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      "$p" >>"$LOG" 2>&1 || true
-  done
 }
 
 # pip tooling for the Python tools Debian does not package.
@@ -123,9 +133,21 @@ if [ "$DO_WIFI" = 1 ]; then
       github:*)
         repo="${src#github:}"; dest="/opt/zyraxon-tools/$name"
         if [ ! -d "$dest" ]; then
-          git clone --depth 1 "https://github.com/$repo.git" "$dest" >>"$LOG" 2>&1 || true
-          [ -f "$dest/setup.sh" ]   && bash "$dest/setup.sh"   >>"$LOG" 2>&1 || true
-          [ -f "$dest/install.sh" ] && bash "$dest/install.sh" >>"$LOG" 2>&1 || true
+          # Never block the build on one slow clone: time it out and fall
+          # back to a tarball download.
+          if ! timeout 120 git clone --depth 1 "https://github.com/$repo.git" "$dest" >>"$LOG" 2>&1; then
+            rm -rf "$dest"
+            if timeout 120 curl -fL --retry 2 --connect-timeout 20 \
+                 -o "/tmp/$name.tar.gz" "https://codeload.github.com/$repo/tar.gz/HEAD" >>"$LOG" 2>&1; then
+              mkdir -p "$dest"
+              tar -xzf "/tmp/$name.tar.gz" -C "$dest" --strip-components=1 >>"$LOG" 2>&1 || true
+              rm -f "/tmp/$name.tar.gz"
+            else
+              say "could not fetch $name from $repo (skipped)"
+            fi
+          fi
+          [ -f "$dest/setup.sh" ]   && timeout 300 bash "$dest/setup.sh"   >>"$LOG" 2>&1 || true
+          [ -f "$dest/install.sh" ] && timeout 300 bash "$dest/install.sh" >>"$LOG" 2>&1 || true
         fi ;;
     esac
   done < <(grep -vE '^\s*#|^\s*$' "$HERE/wifi-50.txt")
@@ -133,3 +155,7 @@ if [ "$DO_WIFI" = 1 ]; then
 fi
 
 say "toolset installation finished — log: $LOG"
+
+# keep the image small
+apt-get clean >>"$LOG" 2>&1 || true
+rm -rf /var/lib/apt/lists/* >>"$LOG" 2>&1 || true
