@@ -1,11 +1,13 @@
-# build output (regenerate with build.sh)
+# build artifacts
 rootfs/
 iso/
-*.iso
-boot-shots/
-auto/
 local/
+auto/
+dist/
+*.iso
+*.iso.part*
+boot-shots/
 *.log
-dbg*.py
+nohup.out
 __pycache__/
 *.pyc

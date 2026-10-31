@@ -2,7 +2,7 @@
 """Boot the real ZyraxonOS ISO headless and capture screenshots."""
 import json, os, socket, subprocess, time
 ROOT="/workspace/zyraxonos-build"
-ISO=os.path.join(ROOT,"ZyraxonOS-1.0-amd64.iso")
+ISO=os.path.join(ROOT,"ZyraxonOS-9.0.0-amd64.iso")
 K=os.path.join(ROOT,"iso","live","vmlinuz")
 I=os.path.join(ROOT,"iso","live","initrd.img")
 OUT="/workspace/zyraxonos-build/boot-shots"; os.makedirs(OUT,exist_ok=True)

@@ -1,0 +1,42 @@
+
+[global]
+    monitor = 0
+    follow = mouse
+    width = 360
+    height = 130
+    origin = top-right
+    offset = 18x54
+    frame_width = 0
+    gap_size = 12
+    separator_height = 0
+    padding = 16
+    horizontal_padding = 18
+    transparency = 30
+    corner_radius = 22
+    font = Noto Sans 11
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    word_wrap = yes
+    sort = yes
+    idle_threshold = 120
+    ignore_newline = no
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 48
+
+[urgency_low]
+    background = "#2a2350dd"
+    foreground = "#ffffff"
+    timeout = 5
+
+[urgency_normal]
+    background = "#3a2f6fdd"
+    foreground = "#ffffff"
+    timeout = 8
+
+[urgency_critical]
+    background = "#5c1f4add"
+    foreground = "#ffffff"
+    frame_color = "#ff5ea8"
+    timeout = 0

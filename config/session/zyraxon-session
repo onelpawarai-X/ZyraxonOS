@@ -1,0 +1,27 @@
+#!/bin/bash
+# ZyraxonOS — Hyprland glass session.
+exec > >(tee -a /dev/ttyS0 /tmp/zyraxon-session.log) 2>&1
+
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=Hyprland
+export XDG_SESSION_DESKTOP=Hyprland
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORMTHEME=qt6ct
+export GDK_BACKEND=wayland,x11
+export SDL_VIDEODRIVER=wayland
+export _JAVA_AWT_WM_NONREPARENTING=1
+export PATH="$HOME/.local/bin:$PATH"
+
+mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null
+
+# seed the glass desktop config on first login
+if [ ! -f "$HOME/.config/hypr/hyprland.conf" ]; then
+  mkdir -p "$HOME/.config"
+  cp -r /etc/skel/.config/. "$HOME/.config/" 2>/dev/null
+fi
+
+echo "session: user=$(id -un) runtime=$XDG_RUNTIME_DIR"
+exec start-hyprland 2>/dev/null || exec Hyprland

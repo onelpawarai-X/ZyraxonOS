@@ -1,77 +1,102 @@
-<p align="center">
-  <img src="docs/banner.png" width="100%" alt="ZyraxonOS">
-</p>
+# ZyraxonOS 9.0.0 — Glass Edition
 
-<h1 align="center">ZyraxonOS</h1>
+A live Linux operating system with a **glass-morphism** desktop, built on
+Debian GNU/Linux, with the **ZYRAXON AI** agent permanently installed and a
+full security toolkit baked in.
 
-<p align="center"><b>The most powerful operating system.</b><br>
-A glass-morphism Linux desktop, built from the ground up, with the ZYRAXON AI
-agent permanently built in.</p>
-
----
-
-## What it is
-
-ZyraxonOS is a complete, bootable operating system. It boots to a real desktop
-with a real window manager, real applications and a real package base — then
-lays an ultra-translucent glass layer over all of it: a floating centred
-taskbar, a glass start menu, glass notifications, glass settings and a glass
-context menu on every right-click.
-
-Nothing here is a mockup. It is a full Linux system image you can write to a USB
-stick and boot on real hardware.
+ZyraxonOS boots straight into a translucent glass desktop: real GPU blur,
+frosted panels, animated windows and a floating glass top bar — no login
+required. It runs from a USB stick or a virtual machine and never touches
+your disk.
 
 ## Highlights
 
-| | |
-|---|---|
-| **Desktop** | Real XFCE session, glass-themed end to end |
-| **Glass everywhere** | Taskbar, start menu, notifications, settings, dialogs, context menus |
-| **Centred taskbar** | Floating, scrollable, drag it left or right |
-| **Start menu** | Whisker menu, glass panel, live search |
-| **Settings** | Accent colour, wallpaper, glass blur and transparency, branding |
-| **Built-in AI** | ZYRAXON AI agent, permanently installed, auto-updating |
-| **Tool set** | 600+ power tools plus a purpose-built Wi-Fi / security collection |
-| **Updates** | OS and AI updates arrive as glass notifications |
-| **Base** | Debian, live-boot, hybrid BIOS + UEFI image |
+- **Real glass desktop** — Hyprland (Wayland) with GPU blur, vibrancy,
+  rounded corners, drop shadows and smooth animations on every window.
+- **Glass top bar** — a floating translucent Waybar with workspaces, clock,
+  system tray, audio, network, Bluetooth and battery.
+- **Glass launcher and notifications** — Wofi launcher and Dunst toasts,
+  both frosted.
+- **ZYRAXON AI, permanently built in** — the latest ZYRAXON AI release is
+  installed at build time, pinned and locked. It cannot be removed, and the
+  auto-update daemon keeps it current.
+- **Auto-update system** — a daemon watches the ZyraxonOS and ZYRAXON AI
+  releases and pushes an update notice to every running desktop as a glass
+  toast.
+- **Power toolkit** — 600 built-in Linux power tools, 50 custom `zx-*`
+  tools written for this OS, and 50 Wi-Fi / network / security tools.
+- **Fully themeable** — wallpaper, accent colour, glass blur and
+  transparency are all changeable at runtime.
 
 ## Download
 
-Grab the latest image from the [Releases](../../releases) page:
+Grab the latest ISO from the [Releases](../../releases) page:
 
 ```
-ZyraxonOS-1.0-amd64.iso
+ZyraxonOS-9.0.0-amd64.iso
 ```
 
-Write it to a USB stick:
+Write it to a USB stick and boot it:
 
 ```bash
-sudo dd if=ZyraxonOS-1.0-amd64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=ZyraxonOS-9.0.0-amd64.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
-It is a hybrid image: BIOS and UEFI machines both boot it, and it also runs
-directly in a virtual machine:
+It is a hybrid image: it boots on BIOS and UEFI machines, and also runs
+directly in a virtual machine.
+
+## Try it without installing
 
 ```bash
-qemu-system-x86_64 -m 3072 -smp 2 -cdrom ZyraxonOS-1.0-amd64.iso -boot d
+qemu-system-x86_64 -m 3072 -smp 2 -cdrom ZyraxonOS-9.0.0-amd64.iso -boot d
 ```
 
-## Repository layout
+## Keyboard shortcuts
+
+| Key | Action |
+| --- | --- |
+| `Super` + `Enter` | Terminal (kitty) |
+| `Super` + `D` | App launcher (wofi) |
+| `Super` + `E` | File manager |
+| `Super` + `Q` | Close window |
+| `Super` + `F` | Fullscreen |
+| `Super` + `L` | Lock screen |
+| `Super` + `1…5` | Switch workspace |
+| `Super` + `Shift` + `1…5` | Move window to workspace |
+| `Super` + `Shift` + `S` | Screenshot a region |
+| `Super` + `V` | Clipboard history |
+
+## The `zx-*` tools
+
+Fifty tools written for ZyraxonOS, all behind one dispatcher:
+
+```bash
+zx help              # list everything
+zx sysinfo           # hardware + OS + network summary
+zx wifi-scan         # scan nearby Wi-Fi networks
+zx net-scan          # fast LAN discovery
+zx sec-audit         # system security audit
+zx ai-status         # is the ZYRAXON AI agent installed and healthy?
+zx update            # check for OS + AI updates now
+```
+
+## Layout
 
 ```
-build.sh                     full build: rootfs, glass layer, squashfs, ISO
-rebuild-iso.sh               repack the ISO after changing the desktop
-config/
-  package-lists/             the exact package set that goes into the image
-  includes.chroot/           the glass desktop that is baked into the system
-    usr/share/themes/ZyraxonGlass/   GTK2 + GTK3 + xfwm4 glass theme
-    etc/xdg/picom.conf               compositor: real background blur
-    usr/share/backgrounds/           the Aurora wallpaper
-    usr/local/bin/zyraxon-settings   the ZyraxonOS control centre
-    etc/skel/.config/xfce4/          panel, window manager, session defaults
-  hooks/live/                build-time customisation (branding, session)
-boot-test.py                 headless QEMU boot test with screenshots
-docs/                        screenshots and notes
+shell/            the glass desktop (HTML/CSS/JS reference implementation)
+server/           shell backend and the safe terminal endpoint
+config/           Hyprland, Waybar, Wofi, Dunst, Kitty and wallpaper
+  hypr/           hyprland.lua, hyprpaper.conf
+  skel/           everything that lands in /etc/skel
+  session/        the desktop session launcher
+integrations/     ZYRAXON AI, the auto-update daemon and the tool sets
+  zyraxon/        install + update + guard
+  tools/          600-tool manifest, 50 custom tools, 50 Wi-Fi tools
+  update/         OS + AI auto-update
+build.sh, rebuild-iso.sh   the reproducible ISO build
+                            (rootfs + hybrid ISO)
+branding/         boot splash and brand assets
+docs/             architecture and notes
 ```
 
 ## Building from source
@@ -80,17 +105,21 @@ docs/                        screenshots and notes
 sudo apt-get install -y debootstrap squashfs-tools xorriso isolinux \
   syslinux-common syslinux-efi grub-pc-bin grub-efi-amd64-bin mtools \
   dosfstools qemu-system-x86
+
+# build the root filesystem, then the ISO
 sudo bash build.sh
+sudo bash rebuild-iso.sh
 ```
 
-The result is `ZyraxonOS-1.0-amd64.iso`.
+The result is `ZyraxonOS-9.0.0-amd64.iso`.
 
-## Design
+## Design rules
 
-Every surface is a translucent glass chip. Panels, windows, buttons, inputs,
-menus and notifications are all frosted glass over a live animated background.
-The compositor does the real blur, so the effect holds over any application.
+Every surface is a translucent glass chip: panels, windows, bars, menus and
+notifications all use GPU blur over a live animated background. Nothing is
+opaque.
 
 ## License
 
-See [LICENSE](LICENSE). Base system packages keep their own licenses.
+See [LICENSE](LICENSE). Base system packages remain under their own
+licenses (Debian GNU/Linux).
