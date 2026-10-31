@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Control Centre
+Name[bn]=কন্ট্রোল সেন্টার
+Comment=Change accent, glass blur, wallpaper and branding
+Exec=zyraxon-settings
+Icon=preferences-desktop-theme
+Terminal=false
+Categories=Settings;DesktopSettings;GTK;
+Keywords=glass;accent;theme;wallpaper;branding;

@@ -1,0 +1,323 @@
+/* ============================================================
+   ZyraxonOS — "ZyraxonGlass" GTK3 theme
+   A real GTK theme. Combined with the picom compositor (dual_kawase
+   blur), every surface here becomes true frosted glass over the live
+   desktop wallpaper: panels, whisker menu, popovers, dialogs, headers,
+   buttons, entries and sidebars.
+
+   Colour is driven by @zyraxon_accent so the accent colour can be
+   changed in one place.
+   ============================================================ */
+
+/* ---------- palette ---------- */
+@define-color zyraxon_accent        #7c5cff;
+@define-color zyraxon_accent2       #00d4ff;
+
+@define-color glass_fill            alpha(#ffffff, 0.13);
+@define-color glass_fill_strong     alpha(#ffffff, 0.22);
+@define-color glass_fill_soft       alpha(#ffffff, 0.07);
+@define-color glass_border          alpha(#ffffff, 0.34);
+@define-color glass_border_soft     alpha(#ffffff, 0.20);
+@define-color glass_highlight       alpha(#ffffff, 0.55);
+
+@define-color text_on_glass         #ffffff;
+@define-color text_dim              alpha(#ffffff, 0.72);
+@define-color text_faint            alpha(#ffffff, 0.5);
+
+@define-color accent_bg_color       @zyraxon_accent;
+@define-color accent_fg_color       #ffffff;
+
+/* ---------- base ---------- */
+* {
+  outline-color: alpha(@zyraxon_accent, 0.6);
+  outline-style: dashed;
+  outline-width: 1px;
+  outline-offset: -2px;
+}
+
+.background { background-color: transparent; color: @text_on_glass; }
+window, .window { background-color: transparent; }
+
+/* every top-level surface is a glass chip */
+window.background,
+.background.csd {
+  background-image: linear-gradient(150deg, @glass_fill_strong, @glass_fill);
+  border: 1px solid @glass_border;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+}
+
+/* ---------- headerbars / titlebars ---------- */
+headerbar, .titlebar {
+  background-image: linear-gradient(180deg, alpha(#ffffff, 0.26), alpha(#ffffff, 0.06));
+  background-color: transparent;
+  border-bottom: 1px solid @glass_border_soft;
+  border-radius: 14px 14px 0 0;
+  box-shadow: inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+  min-height: 42px;
+  padding: 0 8px;
+}
+
+headerbar:backdrop, .titlebar:backdrop {
+  background-image: linear-gradient(180deg, alpha(#ffffff, 0.16), alpha(#ffffff, 0.04));
+  color: @text_dim;
+}
+
+headerbar .title, .titlebar .title { font-weight: 600; color: @text_on_glass; }
+headerbar .subtitle, .titlebar .subtitle { color: @text_dim; font-size: 0.9em; }
+
+/* ---------- buttons: glass chips ---------- */
+button {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.20), alpha(#ffffff, 0.07));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+  padding: 6px 14px;
+  min-height: 20px;
+  transition: background-image 140ms ease, border-color 140ms ease;
+}
+
+button:hover {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.30), alpha(#ffffff, 0.13));
+  border-color: alpha(#ffffff, 0.48);
+}
+
+button:active, button:checked {
+  background-image: linear-gradient(150deg, alpha(@zyraxon_accent, 0.62), alpha(@zyraxon_accent2, 0.42));
+  border-color: alpha(#ffffff, 0.5);
+}
+
+button:disabled {
+  background-image: none;
+  background-color: alpha(#ffffff, 0.05);
+  color: @text_faint;
+  border-color: @glass_border_soft;
+}
+
+button.flat, button.titlebutton, button.image-button {
+  background-image: none;
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  min-height: 22px;
+  min-width: 22px;
+  padding: 3px;
+}
+button.flat:hover, button.titlebutton:hover, button.image-button:hover {
+  background-image: none;
+  background-color: alpha(#ffffff, 0.20);
+}
+
+button.suggested-action {
+  background-image: linear-gradient(140deg, @zyraxon_accent, @zyraxon_accent2);
+  border-color: transparent;
+  color: #fff;
+}
+button.destructive-action {
+  background-image: linear-gradient(140deg, #ff4d6d, #ff7a5c);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ---------- entries / search ---------- */
+entry, spinbutton, .entry {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.14), alpha(#ffffff, 0.06));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 alpha(#ffffff, 0.4);
+  color: @text_on_glass;
+  padding: 6px 10px;
+  caret-color: @zyraxon_accent2;
+}
+entry:focus, entry:focus-within {
+  border-color: alpha(@zyraxon_accent2, 0.85);
+  box-shadow: inset 0 1px 0 alpha(#ffffff, 0.4), 0 0 0 2px alpha(@zyraxon_accent2, 0.35);
+}
+entry selection { background-color: alpha(@zyraxon_accent, 0.6); color: #fff; }
+entry:disabled { color: @text_faint; }
+
+/* ---------- menus / popovers / context menus ---------- */
+menu, .menu, .context-menu, popover.background, popover > contents {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.24), alpha(#ffffff, 0.11));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px alpha(#000000, 0.45), inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+  padding: 6px;
+}
+
+menuitem, .menuitem { border-radius: 9px; padding: 6px 10px; color: @text_on_glass; }
+menuitem:hover, .menuitem:hover { background-color: alpha(#ffffff, 0.22); }
+menuitem:disabled, .menuitem:disabled { color: @text_faint; }
+
+menubar, .menubar {
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  color: @text_on_glass;
+}
+menubar > menuitem { padding: 4px 8px; border-radius: 8px; }
+
+separator, .separator { background-color: alpha(#ffffff, 0.18); min-height: 1px; min-width: 1px; }
+
+/* ---------- tooltips ---------- */
+tooltip, tooltip.background {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.26), alpha(#ffffff, 0.14));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 10px;
+  color: @text_on_glass;
+  box-shadow: 0 8px 24px alpha(#000000, 0.4);
+}
+
+/* ---------- notebooks / tabs ---------- */
+notebook > header { background-color: transparent; border-color: @glass_border_soft; }
+notebook > header tab { border-radius: 10px 10px 0 0; padding: 6px 14px; color: @text_dim; }
+notebook > header tab:checked {
+  background-image: linear-gradient(180deg, alpha(#ffffff, 0.24), alpha(#ffffff, 0.08));
+  color: @text_on_glass;
+}
+notebook > header tab:hover { color: @text_on_glass; }
+notebook > stack { background-color: transparent; }
+
+/* ---------- sidebars / lists / trees ---------- */
+.sidebar, placessidebar, .navigation-sidebar {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.10), alpha(#ffffff, 0.04));
+  background-color: transparent;
+  border-right: 1px solid @glass_border_soft;
+  color: @text_on_glass;
+}
+.sidebar row:selected, placessidebar row:selected, list row:selected {
+  background-image: linear-gradient(140deg, alpha(@zyraxon_accent, 0.55), alpha(@zyraxon_accent2, 0.35));
+  border-radius: 9px;
+  color: #fff;
+}
+list, .list, treeview.view { background-color: transparent; color: @text_on_glass; }
+list row, .list row { border-radius: 9px; }
+list row:hover, .list row:hover, treeview.view:hover { background-color: alpha(#ffffff, 0.14); }
+treeview.view:selected { background-color: alpha(@zyraxon_accent, 0.5); }
+
+/* ---------- scrollbars ---------- */
+scrollbar { background-color: transparent; border: none; }
+scrollbar slider {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.42), alpha(#ffffff, 0.22));
+  border: none;
+  border-radius: 99px;
+  min-width: 7px;
+  min-height: 7px;
+  margin: 3px;
+}
+scrollbar slider:hover { background-image: linear-gradient(150deg, alpha(#ffffff, 0.6), alpha(#ffffff, 0.35)); }
+
+/* ---------- switches / checkboxes / radios ---------- */
+switch { background-color: alpha(#000000, 0.28); border: 1px solid @glass_border_soft; border-radius: 99px; }
+switch:checked { background-image: linear-gradient(140deg, @zyraxon_accent, @zyraxon_accent2); border-color: transparent; }
+switch slider {
+  background-image: linear-gradient(180deg, #ffffff, alpha(#ffffff, 0.85));
+  border-radius: 99px; border: none; box-shadow: 0 1px 3px alpha(#000000, 0.4);
+}
+check, radio {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.16), alpha(#ffffff, 0.06));
+  border: 1px solid @glass_border;
+  min-width: 16px; min-height: 16px; border-radius: 5px;
+}
+radio { border-radius: 99px; }
+check:checked, radio:checked {
+  background-image: linear-gradient(140deg, @zyraxon_accent, @zyraxon_accent2);
+  border-color: transparent; color: #fff;
+}
+
+/* ---------- scales / progress ---------- */
+scale trough, progressbar trough { background-color: alpha(#000000, 0.26); border-radius: 99px; min-height: 6px; }
+scale highlight, progressbar progress {
+  background-image: linear-gradient(90deg, @zyraxon_accent, @zyraxon_accent2);
+  border-radius: 99px;
+}
+scale slider {
+  background-image: linear-gradient(180deg, #ffffff, alpha(#ffffff, 0.85));
+  border-radius: 99px; border: none; box-shadow: 0 1px 4px alpha(#000000, 0.45);
+  min-width: 16px; min-height: 16px;
+}
+
+/* ---------- frames / cards / views ---------- */
+frame, .frame, .card {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.14), alpha(#ffffff, 0.06));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 alpha(#ffffff, 0.4);
+}
+.view, textview text { background-color: transparent; color: @text_on_glass; }
+textview { background-color: transparent; }
+textview border { background-color: transparent; }
+
+/* ---------- XFCE panel: the real taskbar ---------- */
+.xfce4-panel {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.22), alpha(#ffffff, 0.09));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 18px;
+  box-shadow: 0 12px 34px alpha(#000000, 0.38), inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+}
+.xfce4-panel button {
+  background-image: none; background-color: transparent; border-color: transparent;
+  border-radius: 12px; box-shadow: none; padding: 4px 8px; color: @text_on_glass;
+}
+.xfce4-panel button:hover { background-color: alpha(#ffffff, 0.22); }
+.xfce4-panel button:checked, .xfce4-panel button:active { background-color: alpha(#ffffff, 0.30); }
+.xfce4-panel .tasklist button { border-radius: 11px; padding: 3px 10px; }
+.xfce4-panel .tasklist button:checked {
+  background-image: linear-gradient(140deg, alpha(@zyraxon_accent, 0.55), alpha(@zyraxon_accent2, 0.35));
+}
+
+/* ---------- whisker menu: the real start menu ---------- */
+#whiskermenu-window, .whiskermenu-window {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.26), alpha(#ffffff, 0.12));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px alpha(#000000, 0.5), inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+}
+#whiskermenu-window entry { border-radius: 10px; }
+#whiskermenu-window treeview { background-color: transparent; }
+#whiskermenu-window treeview:selected {
+  background-image: linear-gradient(140deg, alpha(@zyraxon_accent, 0.55), alpha(@zyraxon_accent2, 0.35));
+  border-radius: 8px;
+}
+#whiskermenu-window .sidebar { border-right: 1px solid @glass_border_soft; }
+
+/* ---------- notifications ---------- */
+#XfceNotifyWindow, .xfce4-notifyd {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.28), alpha(#ffffff, 0.14));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px alpha(#000000, 0.5), inset 0 1px 0 @glass_highlight;
+  color: @text_on_glass;
+}
+
+/* ---------- dialogs ---------- */
+dialog, messagedialog, .dialog {
+  background-image: linear-gradient(150deg, alpha(#ffffff, 0.26), alpha(#ffffff, 0.12));
+  background-color: transparent;
+  border: 1px solid @glass_border;
+  border-radius: 16px;
+  color: @text_on_glass;
+}
+
+/* ---------- desktop icons ---------- */
+.xfdesktop-icon-view { color: #ffffff; text-shadow: 0 1px 4px alpha(#000000, 0.85); }
+.xfdesktop-icon-view:selected { background-color: alpha(@zyraxon_accent, 0.45); border-radius: 8px; }
+
+/* ---------- lightdm greeter ---------- */
+.lightdm-gtk-greeter { background-color: transparent; color: #ffffff; }
+
+.vertical.separator, .horizontal.separator { background-color: alpha(#ffffff, 0.20); }

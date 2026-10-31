@@ -1,0 +1,11 @@
+# build output (regenerate with build.sh)
+rootfs/
+iso/
+*.iso
+boot-shots/
+auto/
+local/
+*.log
+dbg*.py
+__pycache__/
+*.pyc

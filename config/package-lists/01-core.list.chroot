@@ -1,0 +1,52 @@
+# ============================================================
+# ZyraxonOS — core system
+# A real, complete Debian system: kernel, live boot, systemd,
+# firmware, filesystem tools.
+# ============================================================
+linux-image-amd64
+initramfs-tools
+live-boot
+live-config
+live-config-systemd
+live-tools
+systemd
+systemd-sysv
+dbus
+dbus-x11
+udev
+locales
+console-setup
+kbd
+tzdata
+ca-certificates
+sudo
+adduser
+apt-utils
+gnupg
+rsync
+less
+nano
+vim-tiny
+
+# firmware so real hardware works
+firmware-linux-free
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+
+# filesystems and disk
+dosfstools
+ntfs-3g
+exfatprogs
+e2fsprogs
+xfsprogs
+btrfs-progs
+parted
+gdisk
+lvm2
+cryptsetup
+util-linux
+usbutils
+pciutils

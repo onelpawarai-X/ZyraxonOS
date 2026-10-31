@@ -1,0 +1,107 @@
+#!/bin/bash
+# ============================================================
+# ZyraxonOS graphical session.
+#
+# lightdm's autologin is fragile in a live image (live-config
+# rewrites the seat config at boot). Instead we start the real XFCE
+# session from a systemd unit on tty1, exactly like a kiosk. This is
+# deterministic and still gives a full, real XFCE desktop.
+# ============================================================
+set -uo pipefail
+
+# make sure the desktop user exists with the right groups
+if ! id zyraxon >/dev/null 2>&1; then
+  useradd -m -s /bin/bash zyraxon
+fi
+echo "zyraxon:zyraxon" | chpasswd
+for g in sudo audio video render input netdev lpadmin plugdev; do
+  getent group "$g" >/dev/null && usermod -aG "$g" zyraxon
+done
+getent group nopasswdlogin >/dev/null || groupadd nopasswdlogin
+usermod -aG nopasswdlogin zyraxon
+
+# give the user the skeleton config (panel, theme, wallpaper)
+mkdir -p /home/zyraxon
+cp -a /etc/skel/.config /home/zyraxon/ 2>/dev/null || true
+cp -a /etc/skel/.bash_profile /home/zyraxon/ 2>/dev/null || true
+chown -R zyraxon:zyraxon /home/zyraxon
+
+# lightdm stays installed but disabled - the session unit drives the desktop
+systemctl disable lightdm.service >/dev/null 2>&1 || true
+rm -f /etc/systemd/system/graphical.target.wants/lightdm.service 2>/dev/null || true
+rm -f /etc/systemd/system/display-manager.service 2>/dev/null || true
+
+ln -sf /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+
+# the desktop session unit
+cat > /etc/systemd/system/zyraxon-desktop.service <<'UNIT'
+[Unit]
+Description=ZyraxonOS Glass Desktop (XFCE)
+After=systemd-user-sessions.service dbus.service
+Wants=dbus.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=zyraxon
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=tty
+StandardError=journal
+TTYReset=yes
+TTYVHangup=yes
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=XDG_SESSION_TYPE=x11
+ExecStartPre=/bin/mkdir -p /run/user/1000
+ExecStartPre=/bin/chown zyraxon:zyraxon /run/user/1000
+ExecStartPre=/bin/chmod 700 /run/user/1000
+ExecStart=/usr/bin/startxfce4
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical.target
+UNIT
+
+mkdir -p /etc/systemd/system/graphical.target.wants
+ln -sf /etc/systemd/system/zyraxon-desktop.service \
+       /etc/systemd/system/graphical.target.wants/zyraxon-desktop.service
+
+# keep getty off tty1 so it cannot fight for the display
+systemctl disable getty@tty1.service >/dev/null 2>&1 || true
+mkdir -p /etc/systemd/system/getty@tty1.service.d
+cat > /etc/systemd/system/getty@tty1.service.d/override.conf <<'EOD'
+[Unit]
+ConditionPathExists=/dev/null
+EOD
+
+echo "ZyraxonOS desktop session configured."
+
+# ---- disable the screensaver / locker (crashes headless in VMs) ----
+for svc in light-locker light-locker-settings xfce4-screensaver xscreensaver; do
+  systemctl disable "$svc.service" >/dev/null 2>&1 || true
+  systemctl mask "$svc.service" >/dev/null 2>&1 || true
+done
+mkdir -p /home/zyraxon/.config/autostart
+for autostart in light-locker.desktop xfce4-screensaver.desktop xscreensaver.desktop; do
+  cat > "/home/zyraxon/.config/autostart/$autostart" <<'EOD'
+[Desktop Entry]
+Type=Application
+Name=disabled
+Hidden=true
+EOD
+done
+chown -R zyraxon:zyraxon /home/zyraxon/.config/autostart
+
+# xscreensaver/light-locker off in xfconf too
+python3 - <<'PY'
+import os
+p = "/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml"
+if os.path.exists(p):
+    s = open(p).read()
+    if "LockCommand" in s:
+        s = s.replace('value="xflock4"', 'value="true"')
+        open(p, "w").write(s)
+PY
+echo "ZyraxonOS locker disabled."

@@ -1,0 +1,96 @@
+# ============================================================
+# ZyraxonOS — the real desktop environment
+# XFCE4: a complete, mature desktop with a real start menu
+# (Whisker Menu), a real taskbar (xfce4-panel), a real settings
+# manager, a real file manager, a real window manager with a
+# compositor (this is what makes true glass/blur possible).
+# ============================================================
+xfce4
+xfce4-goodies
+xfce4-whiskermenu-plugin
+xfce4-pulseaudio-plugin
+xfce4-clipman-plugin
+xfce4-notifyd
+xfce4-power-manager
+xfce4-screenshooter
+xfce4-settings
+xfce4-terminal
+thunar
+thunar-archive-plugin
+thunar-volman
+mousepad
+ristretto
+xfce4-taskmanager
+xfce4-systemload-plugin
+xfce4-cpugraph-plugin
+xfce4-netload-plugin
+xfce4-diskperf-plugin
+xfce4-battery-plugin
+xfce4-datetime-plugin
+xfce4-weather-plugin
+xfce4-notes-plugin
+xfce4-timer-plugin
+xfce4-sensors-plugin
+xfce4-smartbookmark-plugin
+xfce4-mailwatch-plugin
+xfce4-genmon-plugin
+xfce4-eyes-plugin
+xfce4-indicator-plugin
+xfce4-places-plugin
+xfce4-fsguard-plugin
+
+# display stack: Xorg + a compositor for real glass effects
+xserver-xorg
+xserver-xorg-core
+xserver-xorg-video-all
+xserver-xorg-input-all
+xinit
+x11-utils
+x11-xserver-utils
+xauth
+xdotool
+wmctrl
+
+# compositing / effects
+compton
+picom
+xcompmgr
+libgl1-mesa-dri
+mesa-utils
+
+# session + display manager (real login screen)
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+
+# theming engine (this is what we restyle to glass)
+gtk2-engines
+gtk2-engines-murrine
+gtk2-engines-pixbuf
+gtk3-engines-xfce
+sassc
+libglib2.0-bin
+
+# fonts
+fonts-dejavu
+fonts-dejavu-core
+fonts-dejavu-extra
+fonts-noto
+fonts-noto-core
+fonts-noto-color-emoji
+fonts-liberation
+fonts-cantarell
+fonts-font-awesome
+
+# icons + cursors (real icon themes)
+adwaita-icon-theme
+papirus-icon-theme
+hicolor-icon-theme
+dmz-cursor-theme
+
+# audio
+pipewire
+pipewire-pulse
+wireplumber
+alsa-utils
+pavucontrol

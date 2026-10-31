@@ -1,0 +1,76 @@
+# ============================================================
+# ZyraxonOS — real applications
+# The software a complete desktop ships with.
+# ============================================================
+
+# browser
+firefox-esr
+chromium
+
+# office / documents
+libreoffice-writer
+libreoffice-calc
+libreoffice-impress
+libreoffice-gtk3
+evince
+poppler-utils
+
+# media
+vlc
+rhythmbox
+mpv
+ffmpeg
+sox
+imagemagick
+graphicsmagick
+gimp
+inkscape
+
+# archives
+file-roller
+p7zip-full
+zip
+unzip
+xz-utils
+zstd
+
+# text / code
+mousepad
+geany
+python3
+python3-pip
+python3-venv
+git
+curl
+wget
+
+# system tools
+gnome-disk-utility
+gparted
+htop
+btop
+ncdu
+tree
+mc
+screen
+tmux
+bash-completion
+command-not-found
+man-db
+manpages
+locate
+mlocate
+
+# network
+network-manager
+network-manager-gnome
+nm-connection-editor
+blueman
+openssh-client
+rsync
+
+# printing
+cups
+system-config-printer
+ghostscript
+gnome-software

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Software
+Name[bn]=সফটওয়্যার
+Comment=Install and remove applications
+Exec=gnome-software
+Icon=system-software-install
+Terminal=false
+Categories=System;PackageManager;

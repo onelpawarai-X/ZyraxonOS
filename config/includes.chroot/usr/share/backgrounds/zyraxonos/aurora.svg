@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1200" width="1920" height="1200">
+  <defs>
+    <radialGradient id="g1" cx="18%" cy="18%" r="62%">
+      <stop offset="0%" stop-color="#7c5cff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="82%" cy="24%" r="58%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g3" cx="66%" cy="88%" r="62%">
+      <stop offset="0%" stop-color="#ff5ea8" stop-opacity="0.62"/>
+      <stop offset="100%" stop-color="#ff5ea8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g4" cx="26%" cy="92%" r="60%">
+      <stop offset="0%" stop-color="#12ffb0" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#12ffb0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1030"/>
+      <stop offset="55%" stop-color="#140a2e"/>
+      <stop offset="100%" stop-color="#05061a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1200" fill="url(#base)"/>
+  <rect width="1920" height="1200" fill="url(#g1)"/>
+  <rect width="1920" height="1200" fill="url(#g2)"/>
+  <rect width="1920" height="1200" fill="url(#g3)"/>
+  <rect width="1920" height="1200" fill="url(#g4)"/>
+</svg>

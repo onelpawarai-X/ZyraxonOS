@@ -1,0 +1,142 @@
+#!/bin/bash
+# ============================================================
+# ZyraxonOS branding hook - runs inside the chroot after packages.
+# ============================================================
+set -e
+
+# ---- os-release ----
+cat > /etc/os-release <<'REL'
+PRETTY_NAME="ZyraxonOS 1.0 (Glass Edition)"
+NAME="ZyraxonOS"
+VERSION_ID="1.0"
+VERSION="1.0 (Glass Edition)"
+VERSION_CODENAME=glass
+ID=zyraxonos
+ID_LIKE=debian
+HOME_URL="https://github.com/onelpawarai-X/ZyraxonOS"
+SUPPORT_URL="https://github.com/onelpawarai-X/ZyraxonOS/issues"
+BUG_REPORT_URL="https://github.com/onelpawarai-X/ZyraxonOS/issues"
+REL
+echo "zyraxonos" > /etc/hostname
+cat > /etc/hosts <<'H'
+127.0.0.1   localhost
+127.0.1.1   zyraxonos
+::1         localhost ip6-localhost ip6-loopback
+H
+cat > /etc/issue <<'I'
+ZyraxonOS 1.0 (Glass Edition) \n \l
+I
+cat > /etc/motd <<'M'
+
+  ZyraxonOS 1.0 (Glass Edition)
+  A translucent glass desktop, built on Debian GNU/Linux.
+
+M
+
+# ---- lsb / dpkg branding ----
+if [ -f /etc/lsb-release ]; then
+  cat > /etc/lsb-release <<'L'
+DISTRIB_ID=ZyraxonOS
+DISTRIB_RELEASE=1.0
+DISTRIB_CODENAME=glass
+DISTRIB_DESCRIPTION="ZyraxonOS 1.0 (Glass Edition)"
+L
+fi
+
+# ---- live user ----
+# live-boot creates the user; make sure it exists with a known password
+if ! id zyraxon >/dev/null 2>&1; then
+  useradd -m -s /bin/bash zyraxon || true
+fi
+echo "zyraxon:zyraxon" | chpasswd || true
+for g in sudo audio video render input netdev lpadmin; do
+  getent group "$g" >/dev/null && usermod -aG "$g" zyraxon || true
+done
+# passwordless sudo so the desktop can do real system changes
+printf 'zyraxon ALL=(ALL) NOPASSWD:ALL\n' > /etc/sudoers.d/zyraxon
+chmod 440 /etc/sudoers.d/zyraxon
+
+# ---- lightdm: autologin straight to the glass desktop ----
+mkdir -p /etc/lightdm/lightdm.conf.d
+cat > /etc/lightdm/lightdm.conf.d/50-zyraxon.conf <<'L'
+[Seat:*]
+autologin-user=zyraxon
+autologin-user-timeout=0
+user-session=xfce
+greeter-session=lightdm-gtk-greeter
+L
+
+# ---- XFCE defaults for the live user ----
+# copy the skeleton config into the live user's home
+if [ -d /home/zyraxon ]; then
+  cp -a /etc/skel/.config /home/zyraxon/ 2>/dev/null || true
+  chown -R zyraxon:zyraxon /home/zyraxon 2>/dev/null || true
+fi
+
+# ---- make the shell scripts executable ----
+chmod +x /usr/local/bin/zyraxon-settings /usr/local/bin/zyraxon-wallpaper 2>/dev/null || true
+
+# ---- GTK settings for GTK2 apps too ----
+mkdir -p /etc/gtk-2.0 /etc/gtk-3.0
+cat > /etc/gtk-2.0/gtkrc <<'G'
+gtk-theme-name="ZyraxonGlass"
+gtk-icon-theme-name="Papirus-Dark"
+gtk-font-name="Noto Sans 10"
+G
+cat > /etc/gtk-3.0/settings.ini <<'G'
+[Settings]
+gtk-theme-name=ZyraxonGlass
+gtk-icon-theme-name=Papirus-Dark
+gtk-font-name=Noto Sans 10
+gtk-application-prefer-dark-theme=true
+G
+
+# ---- default applications ----
+cat > /etc/xdg/xfce4/helpers.rc <<'H'
+TerminalEmulator=xfce4-terminal
+WebBrowser=firefox-esr
+FileManager=thunar
+MailReader=thunderbird
+H
+
+echo "ZyraxonOS branding applied."
+
+# ---- make the graphical desktop the default target ----
+ln -sf /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+mkdir -p /etc/systemd/system/graphical.target.wants
+ln -sf /lib/systemd/system/lightdm.service /etc/systemd/system/graphical.target.wants/lightdm.service
+ln -sf /lib/systemd/system/accounts-daemon.service /etc/systemd/system/graphical.target.wants/accounts-daemon.service 2>/dev/null || true
+
+# plymouth blocks the live boot in VMs; keep it out of the critical path
+mkdir -p /etc/systemd/system/plymouth-quit-wait.service.d
+printf '[Unit]\nConditionPathExists=/dev/null\n' > /etc/systemd/system/plymouth-quit-wait.service.d/disable.conf
+systemctl disable plymouth-quit-wait.service 2>/dev/null || true
+systemctl enable lightdm.service 2>/dev/null || true
+
+echo "ZyraxonOS graphical target configured."
+
+# ---- lightdm autologin (the conf.d directory is NOT read by default) ----
+python3 - <<'PYFIX'
+p = "/etc/lightdm/lightdm.conf"
+try:
+    s = open(p).read()
+except OSError:
+    s = ""
+if "autologin-user=zyraxon" not in s:
+    block = ("[Seat:*]\n"
+             "autologin-user=zyraxon\n"
+             "autologin-user-timeout=0\n"
+             "autologin-session=xfce\n"
+             "user-session=xfce\n"
+             "greeter-session=lightdm-gtk-greeter\n")
+    s = s.replace("[Seat:*]\n", block, 1)
+    open(p, "w").write(s)
+PYFIX
+getent group nopasswdlogin >/dev/null || groupadd nopasswdlogin
+usermod -aG nopasswdlogin zyraxon 2>/dev/null || true
+
+# a greeter fallback: if autologin ever fails, do not block the boot
+mkdir -p /etc/lightdm/lightdm.conf.d
+cp /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.d/50-zyraxon.conf 2>/dev/null || true
+
+echo "ZyraxonOS autologin configured."

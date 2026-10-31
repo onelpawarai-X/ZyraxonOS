@@ -1,0 +1,52 @@
+# ZyraxonOS custom tools (50) — written for this OS, installed into /usr/local/bin.
+# Every one is a symlink to the `zx` dispatcher. Format: name | description
+zx-sysinfo        | one-screen hardware + OS + network summary
+zx-neofetch       | glass-styled system fetch banner
+zx-glass-switch   | toggle the glass blur/saturation level
+zx-wallpaper      | cycle or set the aurora wallpaper
+zx-update         | trigger a ZyraxonOS + ZYRAXON AI update now
+zx-update-status  | show installed vs latest version
+zx-ai             | launch the built-in ZYRAXON AI agent
+zx-ai-status      | show whether the agent is installed and healthy
+zx-ai-guard       | verify and repair the agent installation
+zx-wifi-scan      | scan for nearby Wi-Fi networks
+zx-wifi-connect   | connect to a Wi-Fi network (SSID + password)
+zx-wifi-hotspot   | create a Wi-Fi hotspot from this machine
+zx-wifi-monitor   | put the adapter into monitor mode
+zx-wifi-deauth    | controlled deauth test (own networks only)
+zx-wifi-crack     | WPA handshake capture + audit workflow
+zx-net-scan       | fast LAN discovery
+zx-net-speed      | download/upload/latency benchmark
+zx-net-trace      | traceroute with geolocation
+zx-net-dns        | DNS lookup + propagation check
+zx-net-ports      | open-port audit for a host
+zx-net-capture    | packet capture helper (tcpdump wrapper)
+zx-net-firewall   | simple firewall rule manager
+zx-sec-audit      | system security audit (lynis wrapper)
+zx-sec-rootkit    | rootkit scan
+zx-sec-antivirus  | malware scan
+zx-sec-passwd     | password strength auditor
+zx-sec-encrypt    | encrypt a file or directory
+zx-sec-backup     | encrypted backup to a target
+zx-dev-git        | git quick actions (status, commit, push)
+zx-dev-build      | one-command build for common languages
+zx-dev-env        | show/activate the dev toolchain
+zx-dev-docker     | docker/podman quick actions
+zx-dev-kube       | kubernetes quick actions
+zx-pkg-install    | install packages (apt aware)
+zx-pkg-search     | search all package sources at once
+zx-pkg-clean      | reclaim disk from package caches
+zx-file-search    | blazing search (fd + ripgrep)
+zx-file-big       | find the largest files/dirs
+zx-file-dedupe    | find and remove duplicate files
+zx-file-recover   | file recovery helper
+zx-disk-health    | SMART health report for all disks
+zx-disk-bench     | disk speed benchmark
+zx-thermal        | temperatures and fan speeds
+zx-battery        | battery and power profile
+zx-process-kill   | find and kill a process safely
+zx-service        | systemd service manager helper
+zx-log-view       | browse system logs
+zx-screenshot     | capture the screen (region/window/full)
+zx-screen-record  | record the screen
+zx-theme          | switch the glass theme
