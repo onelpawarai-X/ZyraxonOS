@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=ZyraxonOS Glass Compositor
-Comment=Real frosted-glass blur for every surface
-Exec=picom --config /etc/xdg/picom.conf
-Terminal=false
-StartupNotify=false
-OnlyShowIn=XFCE;
-X-GNOME-Autostart-enabled=true

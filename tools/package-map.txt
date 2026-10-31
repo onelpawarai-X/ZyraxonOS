@@ -1,0 +1,158 @@
+# ZyraxonOS — package-name corrections for core-600.txt.
+# Left: a name as it appears in the tool list (often a command, not a
+# package). Right: the real Debian package that provides it, or "-" when
+# no Debian package provides it (those are installed by other means:
+# pip / npm / cargo / upstream release, see install-tools.sh).
+# Format: listed-name | real-package
+# ---------------------------------------------------------------
+
+# coreutils / findutils / util-linux / iproute2: commands, not packages
+find            | findutils
+locate          | plocate
+stat            | coreutils
+lsblk           | util-linux
+blkid           | util-linux
+mount           | mount
+umount          | mount
+mkfs            | util-linux
+fsck            | util-linux
+tune2fs         | e2fsprogs
+resize2fs       | e2fsprogs
+dumpe2fs        | e2fsprogs
+sfdisk          | util-linux
+fdisk           | util-linux
+head            | coreutils
+tail            | coreutils
+wc              | coreutils
+sort            | coreutils
+uniq            | coreutils
+cut             | coreutils
+tr              | coreutils
+tee             | coreutils
+xargs           | findutils
+od              | coreutils
+strings         | binutils
+hexdump         | bsdextrautils
+more            | util-linux
+cal             | bsdextrautils
+date            | coreutils
+yes             | coreutils
+seq             | coreutils
+ip              | iproute2
+ss              | iproute2
+route           | net-tools
+arp             | net-tools
+ping            | iputils-ping
+traceroute6     | traceroute
+tracepath       | iputils-tracepath
+
+# name collisions: list says the command, Debian ships the tool under another name
+lspci           | pciutils
+lsusb           | usbutils
+photorec        | testdisk
+ddrescue        | gddrescue
+dig             | bind9-dnsutils
+host            | bind9-host
+ipsec-tools     | libreswan
+exploitdb       | -
+snort           | fwsnort
+wireshark-common| wireshark-common
+termshark       | -
+nuclei          | -
+subfinder       | -
+amass           | -
+feroxbuster     | -
+wpscan          | -
+zaproxy         | -
+kismet          | -
+grafana         | -
+telegraf        | -
+ventoy          | -
+unetbootin      | -
+
+# python tooling: not in Debian under these names (installed with pip)
+pytest          | -
+coverage        | -
+hypothesis      | -
+freezegun       | -
+tenacity        | -
+rich            | -
+textual         | -
+safety          | -
+pip-audit       | -
+semgrep         | -
+pyright         | -
+infer           | -
+pexpect         | python3-pexpect
+paramiko        | python3-paramiko
+plumbum         | -
+shellingham     | -
+termcolor       | -
+urwid           | -
+npyscreen       | -
+inquirer        | -
+blender         | blender
+
+# shells / terminals not in Debian
+nu              | nushell
+ksh93           | ksh
+zellij          | -
+abduco          | -
+script          | bsdextrautils
+pnpm            | -
+bun             | -
+
+# cloud / k8s tooling not in Debian (installed from upstream releases)
+helm            | -
+minikube        | -
+k9s             | -
+lazydocker      | -
+ctop            | -
+stern           | -
+skaffold        | -
+tilt            | -
+fluxcd          | -
+vault           | -
+nomad           | -
+consul          | -
+grpcurl         | -
+buf             | -
+openapi-generator | -
+websocat        | -
+vegeta          | -
+k6              | -
+terraform       | -
+packer          | packer
+salt-minion     | -
+puppet-agent    | -
+jenkins         | -
+tomlq           | -
+taplo           | -
+hadolint        | -
+checkov         | -
+tfsec           | -
+terrascan       | -
+kube-linter     | -
+kubeval         | -
+conftest        | -
+opa             | -
+kube-bench      | -
+kube-hunter     | -
+trivy           | -
+grype           | -
+syft            | -
+osv-scanner     | -
+dust            | -
+bottom          | -
+bandwhich       | -
+deluge-cli      | deluge-console
+ghidra          | -
+dex2jar         | -
+jadx            | -
+chezmoi         | -
+protobuf-compiler | protobuf-compiler
+qemu-system-x86 | qemu-system-x86
+memtest86+      | memtest86+
+zfsutils-linux  | zfsutils-linux
+libvirt-clients | libvirt-clients
+virtinst        | virtinst

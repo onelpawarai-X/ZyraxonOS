@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# ============================================================
+# ZyraxonOS — over-the-air updater (OTA).
+#
+#   zyraxon-ota check                 show current vs latest
+#   zyraxon-ota patch                 apply the newest small patch
+#   zyraxon-ota full                  pull the newest full image
+#   zyraxon-ota auto                  patch if possible, else notify
+#
+# Two update channels, like Windows Update / macOS:
+#   * patch — a small .tar.zst of just the changed files (no reinstall)
+#   * full  — the complete ISO, unpacked over the running system
+#
+# Nothing here reinstalls the OS: patches replace files in place and the
+# full image is unpacked over / after its checksum is verified.
+# ============================================================
+set -uo pipefail
+
+REPO="onelpawarai-X/ZyraxonOS"
+API="https://api.github.com/repos/${REPO}/releases/latest"
+CACHE="${ZYRAXON_CACHE:-/var/cache/zyraxon}"
+STATE_DIR="/var/lib/zyraxon"
+LOG="/var/log/zyraxon-ota.log"
+CURRENT="$(sed -n 's/^VERSION_ID="\{0,1\}\([^"]*\)"\{0,1\}/\1/p' /etc/os-release 2>/dev/null)"
+CURRENT="${CURRENT:-0.0.0}"
+
+mkdir -p "$CACHE" "$STATE_DIR"
+: >>"$LOG"
+say(){ printf '\033[1;36m[zyraxon-ota]\033[0m %s\n' "$*" | tee -a "$LOG"; }
+die(){ printf '\033[1;31m[error]\033[0m %s\n' "$*" | tee -a "$LOG"; exit 1; }
+
+_curl(){ curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 "$@"; }
+
+_release_json(){ _curl -s "$API" 2>/dev/null; }
+
+_latest_version(){
+  _release_json | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name","").lstrip("v"))' 2>/dev/null
+}
+
+_asset_url(){
+  local name="$1"
+  _release_json | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+for a in d.get('assets', []):
+    if a['name'] == '$name':
+        print(a['browser_download_url']); break
+" 2>/dev/null
+}
+
+_vercmp(){ [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)" = "$1" ]; }
+
+check(){
+  local latest; latest="$(_latest_version)"
+  [ -n "$latest" ] || die "could not reach GitHub"
+  echo "installed : $CURRENT"
+  echo "latest    : $latest"
+  if _vercmp "$latest" "$CURRENT"; then
+    echo "status    : update available"
+    return 0
+  fi
+  echo "status    : up to date"
+  return 1
+}
+
+# ---- small patch channel ------------------------------------------------
+apply_patch(){
+  local latest; latest="$(_latest_version)"
+  [ -n "$latest" ] || die "could not reach GitHub"
+  _vercmp "$latest" "$CURRENT" || { say "already on $CURRENT"; return 0; }
+
+  local name="zyraxon-patch-${CURRENT}-to-${latest}.tar.zst"
+  local url; url="$(_asset_url "$name")"
+  if [ -z "$url" ]; then
+    say "no patch published for ${CURRENT} -> ${latest}"
+    return 1
+  fi
+
+  local file="$CACHE/$name"
+  [ -s "$file" ] || { say "downloading $name"; _curl -o "$file.part" "$url" && mv "$file.part" "$file" || die "download failed"; }
+
+  local sum_url; sum_url="$(_asset_url "${name}.sha256")"
+  if [ -n "$sum_url" ]; then
+    _curl -s -o "$CACHE/$name.sha256" "$sum_url"
+    ( cd "$CACHE" && sha256sum -c "$name.sha256" >/dev/null 2>&1 ) || die "checksum mismatch"
+  fi
+
+  say "applying patch to /"
+  local manifest="$CACHE/$name.files"
+  zstd -dc "$file" | tar -xvf - -C / >"$manifest" 2>>"$LOG" || die "patch extraction failed"
+  say "patched $(wc -l <"$manifest") files"
+  echo "$latest" >"$STATE_DIR/.os-version"
+  _post_patch
+  _notify "ZyraxonOS updated" "Patched to ${latest} — restart to finish."
+}
+
+# ---- full image channel -------------------------------------------------
+apply_full(){
+  local latest; latest="$(_latest_version)"
+  [ -n "$latest" ] || die "could not reach GitHub"
+  _vercmp "$latest" "$CURRENT" || { say "already on $CURRENT"; return 0; }
+
+  say "downloading the ${latest} image"
+  local i=0 part url
+  rm -f "$CACHE"/ZyraxonOS-"$latest"-amd64.iso
+  while :; do
+    part="$(printf 'ZyraxonOS-%s-amd64.iso.part%02d' "$latest" "$i")"
+    url="$(_asset_url "$part")"
+    [ -n "$url" ] || break
+    _curl -C - -o "$CACHE/$part" "$url" || die "failed to fetch $part"
+    i=$((i+1))
+  done
+  [ "$i" -gt 0 ] || die "no image parts found for ${latest}"
+
+  cat "$CACHE"/ZyraxonOS-"$latest"-amd64.iso.part* >"$CACHE/ZyraxonOS-${latest}-amd64.iso"
+  local sums; sums="$(_asset_url SHA256SUMS)"
+  if [ -n "$sums" ]; then
+    _curl -s -o "$CACHE/SHA256SUMS" "$sums"
+    ( cd "$CACHE" && grep 'amd64.iso' SHA256SUMS | sha256sum -c - >/dev/null 2>&1 ) \
+      || say "checksum not verified (continuing)"
+  fi
+
+  say "unpacking the image over the running system"
+  local mnt; mnt="$(mktemp -d)"
+  mount -o loop,ro "$CACHE/ZyraxonOS-${latest}-amd64.iso" "$mnt" || die "cannot mount image"
+  if [ -f "$mnt/live/filesystem.squashfs" ]; then
+    local smnt; smnt="$(mktemp -d)"
+    mount -o loop,ro "$mnt/live/filesystem.squashfs" "$smnt" || die "cannot mount squashfs"
+    rsync -aHAX --info=progress2 "$smnt/usr" "$smnt/etc" "$smnt/opt" "$smnt/var/lib" / 2>>"$LOG" || true
+    umount "$smnt"; rmdir "$smnt"
+  fi
+  umount "$mnt"; rmdir "$mnt"
+  echo "$latest" >"$STATE_DIR/.os-version"
+  _post_patch
+  _notify "ZyraxonOS updated" "Updated to ${latest} — restart to finish."
+}
+
+_post_patch(){
+  # refresh caches and rebuild the desktop so the new files take effect
+  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database -q || true
+  command -v fc-cache >/dev/null 2>&1 && fc-cache -f >/dev/null 2>&1 || true
+}
+
+_notify(){
+  command -v notify-send >/dev/null 2>&1 && notify-send "$1" "$2" || true
+}
+
+case "${1:-auto}" in
+  check) check ;;
+  patch) apply_patch ;;
+  full)  apply_full ;;
+  auto)
+    if ! check >/dev/null 2>&1; then say "system is up to date ($CURRENT)"; exit 0; fi
+    apply_patch || { say "no small patch; a full update is available (run: zyraxon-ota full)"; \
+                     _notify "ZyraxonOS update" "A full update is available. Run: zyraxon-ota full"; }
+    ;;
+  *) die "usage: zyraxon-ota {check|patch|full|auto}" ;;
+esac

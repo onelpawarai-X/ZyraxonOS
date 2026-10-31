@@ -56,11 +56,15 @@ glass-switch)
   hdr "glass blur = ${v}px (reload the shell to apply)"
   ;;
 wallpaper)     hdr "aurora wallpaper: ${1:-cycle}"; echo "${1:-aurora}" > /etc/zyraxon/wallpaper 2>/dev/null || true ;;
-update)        hdr "checking for ZyraxonOS + ZYRAXON AI updates"; python3 /opt/zyraxon/zyraxon-update.py --once ;;
+update)        hdr "checking for ZyraxonOS + ZYRAXON AI updates"; zyraxon-ota check ;;
+update-apply)  hdr "applying the newest ZyraxonOS patch (no reinstall)"; zyraxon-ota patch ;;
+update-full)   hdr "updating ZyraxonOS from the full image"; zyraxon-ota full ;;
+update-auto)   hdr "automatic ZyraxonOS update"; zyraxon-ota auto ;;
 update-status)
   hdr "update status"
   echo "OS : $(grep PRETTY_NAME /etc/os-release | cut -d= -f2-)"
   echo "AI : $(cat /opt/zyraxon/.installed-version 2>/dev/null || echo 'not installed')"
+  echo "    last OTA: $(cat /var/lib/zyraxon/.os-version 2>/dev/null || echo 'none')"
   ;;
 ai)            command -v zyraxon >/dev/null 2>&1 && exec zyraxon "$@" || warn "ZYRAXON AI binary not found" ;;
 ai-status)
@@ -69,7 +73,7 @@ ai-status)
     echo "installed: yes"; echo "version  : $(cat /opt/zyraxon/.installed-version 2>/dev/null || echo unknown)"
   else echo "installed: NO (run zx-ai-guard)"; fi
   ;;
-ai-guard)      python3 /opt/zyraxon/zyraxon-update.py ;;
+ai-guard)      hdr "re-pinning ZYRAXON AI"; /opt/zyraxon/zyraxon-guard.sh ;;
 
 # ---------------- wifi ----------------
 wifi-scan)
@@ -137,7 +141,8 @@ help|*)
   hdr "ZyraxonOS tools (zx-*)"
   cat <<'EOF'
 system    : zx-sysinfo zx-neofetch zx-glass-switch zx-wallpaper zx-update
-            zx-update-status zx-ai zx-ai-status zx-ai-guard
+            zx-update-apply zx-update-full zx-update-status
+            zx-ai zx-ai-status zx-ai-guard
 wifi      : zx-wifi-scan zx-wifi-connect zx-wifi-hotspot zx-wifi-monitor
             zx-wifi-deauth zx-wifi-crack
 network   : zx-net-scan zx-net-speed zx-net-trace zx-net-dns zx-net-ports

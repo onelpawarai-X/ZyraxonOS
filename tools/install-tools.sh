@@ -27,11 +27,37 @@ for a in "$@"; do
 done
 
 apt_install() {  # install whatever exists, ignore the rest
-  local pkgs=() p
-  for p in "$@"; do apt-cache show "$p" >/dev/null 2>&1 && pkgs+=("$p"); done
+  local pkgs=() p cand
+  for p in "$@"; do
+    # A real candidate must exist; virtual packages report "(none)".
+    cand="$(apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/{print $2; exit}')"
+    if [ -n "$cand" ] && [ "$cand" != "(none)" ]; then pkgs+=("$p"); fi
+  done
   [ ${#pkgs[@]} -eq 0 ] && return 0
-  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    "${pkgs[@]}" >>"$LOG" 2>&1 || true
+  if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+       "${pkgs[@]}" >>"$LOG" 2>&1; then
+    return 0
+  fi
+  # One bad name must not drop the whole batch: retry one by one.
+  for p in "${pkgs[@]}"; do
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      "$p" >>"$LOG" 2>&1 || true
+  done
+}
+
+# pip tooling for the Python tools Debian does not package.
+# Never --ignore-installed: pip must respect the Debian packages that
+# share these modules, or the system Python breaks.
+pip_install() {
+  local py=/usr/bin/python3
+  [ -x "$py" ] || return 0
+  DEBIAN_FRONTEND=noninteractive "$py" -m pip install --break-system-packages \
+    --no-input -q "$@" >>"$LOG" 2>&1 || true
+}
+
+npm_install() {
+  command -v npm >/dev/null 2>&1 || return 0
+  npm install -g --silent "$@" >>"$LOG" 2>&1 || true
 }
 
 # ---------------- core: 600 tools ----------------
@@ -40,12 +66,34 @@ if [ "$DO_CORE" = 1 ]; then
   mapfile -t CORE < <(grep -vE '^\s*#|^\s*$' "$HERE/core-600.txt")
   say "resolving ${#CORE[@]} names against apt"
   apt-get update >>"$LOG" 2>&1 || true
+
+  # apply the name->package corrections, dropping entries mapped to "-"
+  declare -A MAP=()
+  if [ -f "$HERE/package-map.txt" ]; then
+    while IFS='|' read -r from to; do
+      from="$(echo "$from" | tr -d ' ')"; to="$(echo "$to" | tr -d ' ')"
+      [ -z "$from" ] && continue
+      MAP["$from"]="$to"
+    done < <(grep -vE '^\s*#|^\s*$' "$HERE/package-map.txt")
+  fi
+
   batch=(); i=0
   for p in "${CORE[@]}"; do
+    if [ -n "${MAP[$p]+x}" ]; then
+      [ "${MAP[$p]}" = "-" ] && continue
+      p="${MAP[$p]}"
+    fi
     batch+=("$p"); i=$((i+1))
     if [ $((i % 40)) -eq 0 ]; then apt_install "${batch[@]}"; batch=(); fi
   done
   [ ${#batch[@]} -gt 0 ] && apt_install "${batch[@]}"
+
+  # the Python and Node tools Debian does not ship
+  say "installing the Python tooling that Debian does not package"
+  pip_install pytest coverage hypothesis freezegun tenacity rich textual \
+    safety pip-audit semgrep pyright pexpect paramiko urwid inquirer
+  say "installing the Node tooling that Debian does not package"
+  npm_install pnpm bun
   say "core toolset done"
 fi
 

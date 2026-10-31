@@ -35,8 +35,8 @@ notification.
 ### Toolkit
 
 - **600** built-in Linux power tools
-- **50** custom `zx-*` tools written for ZyraxonOS
-- **50** Wi-Fi, network and security tools (Kali set)
+- the `zx-*` dispatcher (one entry point for every custom tool)
+- a Wi-Fi, network and security toolset (Kali-style)
 
 ```bash
 zx help              # list every tool

@@ -11,20 +11,22 @@ your disk.
 
 ## Highlights
 
-- **Real glass desktop** — Hyprland (Wayland) with GPU blur, vibrancy,
-  rounded corners, drop shadows and smooth animations on every window.
-- **Glass top bar** — a floating translucent Waybar with workspaces, clock,
-  system tray, audio, network, Bluetooth and battery.
-- **Glass launcher and notifications** — Wofi launcher and Dunst toasts,
-  both frosted.
+- **Real glass desktop** — the ZyraxonOS glass shell on Hyprland (Wayland),
+  with GPU blur, vibrancy, rounded corners, drop shadows and smooth
+  animations on every window.
+- **Glass bar, launcher and notifications** — a floating translucent bar with
+  workspaces, clock, system tray, audio, network, Bluetooth and battery, a
+  frosted launcher, a start menu, a notification centre and a settings app.
 - **ZYRAXON AI, permanently built in** — the latest ZYRAXON AI release is
   installed at build time, pinned and locked. It cannot be removed, and the
   auto-update daemon keeps it current.
 - **Auto-update system** — a daemon watches the ZyraxonOS and ZYRAXON AI
-  releases and pushes an update notice to every running desktop as a glass
-  toast.
-- **Power toolkit** — 600 built-in Linux power tools, 50 custom `zx-*`
-  tools written for this OS, and 50 Wi-Fi / network / security tools.
+  releases and updates the running system without a reinstall: small
+  patches replace only the changed files, and the full image is unpacked
+  over `/` after its checksum is verified. A glass toast announces every
+  update.
+- **Power toolkit** — 600 built-in Linux power tools baked into the image,
+  plus the `zx-*` dispatcher and a Wi-Fi / network / security toolset.
 - **Fully themeable** — wallpaper, accent colour, glass blur and
   transparency are all changeable at runtime.
 
@@ -68,7 +70,7 @@ qemu-system-x86_64 -m 3072 -smp 2 -cdrom ZyraxonOS-9.0.0-amd64.iso -boot d
 
 ## The `zx-*` tools
 
-Fifty tools written for ZyraxonOS, all behind one dispatcher:
+The custom tools, all behind one dispatcher:
 
 ```bash
 zx help              # list everything
@@ -78,6 +80,8 @@ zx net-scan          # fast LAN discovery
 zx sec-audit         # system security audit
 zx ai-status         # is the ZYRAXON AI agent installed and healthy?
 zx update            # check for OS + AI updates now
+zx update-apply      # apply the newest small patch (no reinstall)
+zx update-full       # update from the full image
 ```
 
 ## Layout
@@ -91,7 +95,7 @@ config/           Hyprland, Waybar, Wofi, Dunst, Kitty and wallpaper
   session/        the desktop session launcher
 integrations/     ZYRAXON AI, the auto-update daemon and the tool sets
   zyraxon/        install + update + guard
-  tools/          600-tool manifest, 50 custom tools, 50 Wi-Fi tools
+  tools/          the 600-tool manifest, the zx-* dispatcher and the Wi-Fi tools
   update/         OS + AI auto-update
 build.sh, rebuild-iso.sh   the reproducible ISO build
                             (rootfs + hybrid ISO)
