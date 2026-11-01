@@ -74,15 +74,20 @@ source, configs, comments or translations. The venv env var is
 
 ## Releases and distribution
 
-- GitHub caps a single release asset at 2 GiB, so the ~5.7 GiB ISO is
-  attached to the release as `part_00..part_02`; rejoin with
-  `cat part_* > ZyraxonOS-9.0.0-amd64.iso`. The same ISO is mirrored as
-  one unsplit file on Hugging Face (`sayidi12/ZyraxonOS`); the release body
-  carries that link plus the SHA-256.
-- The canonical ISO lives at `/opt/zyraxon-iso/ZyraxonOS-9.0.0-amd64.iso`
-  on the build host; `SHA256SUMS.txt` there is the checksum of record.
-- After any repack, refresh `SHA256SUMS.txt` and re-upload the parts, or the
-  published checksum will not match.
+- GitHub caps a single release asset at 2 GiB (`size must be less than
+  2147483648`), so the 6.0 GB ISO is attached as `part_00..part_03`
+  (2 000 000 000 bytes each); rejoin with
+  `cat part_00 part_01 part_02 part_03 > ZyraxonOS-9.0.0-amd64.iso`.
+  `REJOIN.txt` and `SHA256SUMS.txt` are attached alongside.
+- The release body carries a direct link to the **whole** ISO, served from
+  the work host (`https://work-1-<runtime>.prod-runtime.all-hands.dev/`)
+  plus the SHA-256. The Hugging Face mirror is `sayidi12/ZyraxonOS`.
+- The ISO is built from `rootfs/` with `mksquashfs -comp zstd
+  -Xcompression-level 15` + `xorriso` (see `rebuild-iso.sh`). Build it on a
+  filesystem with >= 15 GB free; `/workspace` (25 GB, rootfs 19 GB) is too
+  tight for both the squashfs and the ISO, so build in `/opt`.
+- After any repack, refresh `SHA256SUMS.txt`, re-split, and re-upload the
+  parts, or the published checksum will not match.
 
 ## Updating
 
