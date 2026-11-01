@@ -43,12 +43,46 @@ Both run as root. `rebuild-iso.sh` needs `rootfs/` to exist.
   source by `build.sh`.
 - `zx-*` is one dispatcher (`tools/zx`) plus symlinks; `zx help` lists all.
 
+## Glass shell (quickshell) rules (do not regress)
+
+The `ii` shell must load with no `Failed to load configuration` errors.
+Three things made it fail silently on boot and leave the desktop bare:
+
+- `config/dots/.../modules/common/widgets/shapes/` must keep the full
+  module tree (`ShapeCanvas.qml`, `material-shapes.js`, `qmldir`,
+  `geometry/`, `graphics/`, and the nested `shapes/*.js`). `RectangularShadow`
+  and `MaterialShape` import it; if it is missing every widget that uses
+  `StyledRectangularShadow` fails.
+- `modules/common/widgets/RectangularShadow.qml` must be **world-readable**
+  (mode 644). A file created as 600 makes quickshell report
+  `RectangularShadow is not a type` and the whole shell fails to load.
+  Check with `find config/dots -not -perm -o=r`.
+- The five files using `DelegateChooser`/`TableModel` need
+  `import Qt.labs.qmlmodels`, and `build.sh` must install
+  `qml6-module-qt-labs-qmlmodels` (the plugin also needs the
+  `libQt6LabsQmlModels.so.6` library that ships in the same package).
+
+Verify quickly in QEMU: log in, then
+`qs -c ii 2>&1 | grep -c "Failed to load configuration"` must print `0`.
+
 ## Branding rules
 
 The name must be **ZyraxonOS** everywhere. No `illogical-impulse`,
 `end-4`, `dots-hyprland` or `ILLOGICAL_IMPULSE_VIRTUAL_ENV` anywhere in
 source, configs, comments or translations. The venv env var is
 `ZYRAXON_VIRTUAL_ENV`.
+
+## Releases and distribution
+
+- GitHub caps a single release asset at 2 GiB, so the ~5.7 GiB ISO is
+  attached to the release as `part_00..part_02`; rejoin with
+  `cat part_* > ZyraxonOS-9.0.0-amd64.iso`. The same ISO is mirrored as
+  one unsplit file on Hugging Face (`sayidi12/ZyraxonOS`); the release body
+  carries that link plus the SHA-256.
+- The canonical ISO lives at `/opt/zyraxon-iso/ZyraxonOS-9.0.0-amd64.iso`
+  on the build host; `SHA256SUMS.txt` there is the checksum of record.
+- After any repack, refresh `SHA256SUMS.txt` and re-upload the parts, or the
+  published checksum will not match.
 
 ## Updating
 
