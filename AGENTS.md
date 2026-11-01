@@ -79,9 +79,12 @@ source, configs, comments or translations. The venv env var is
   (2 000 000 000 bytes each); rejoin with
   `cat part_00 part_01 part_02 part_03 > ZyraxonOS-9.0.0-amd64.iso`.
   `REJOIN.txt` and `SHA256SUMS.txt` are attached alongside.
-- The release body carries a direct link to the **whole** ISO, served from
-  the work host (`https://work-1-<runtime>.prod-runtime.all-hands.dev/`)
-  plus the SHA-256. The Hugging Face mirror is `sayidi12/ZyraxonOS`.
+- The release body carries a direct link to the **whole** ISO on Hugging
+  Face plus the SHA-256. 9.0.0 ISO:
+  `https://huggingface.co/datasets/sayidi12/ZyraxonOS/resolve/main/ZyraxonOS-9.0.0-amd64.iso`,
+  sha256 `222f43ee97918ff224794a9bef1ad62252e2339dc6616df9696a6f8362883013`
+  (6 006 325 248 bytes). Upload with `HfApi(token=...).upload_file(...,
+  repo_type='dataset')`.
 - The ISO is built from `rootfs/` with `mksquashfs -comp zstd
   -Xcompression-level 15` + `xorriso` (see `rebuild-iso.sh`). Build it on a
   filesystem with >= 15 GB free; `/workspace` (25 GB, rootfs 19 GB) is too
