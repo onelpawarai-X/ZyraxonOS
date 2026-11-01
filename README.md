@@ -32,13 +32,16 @@ your disk.
 
 ## Download
 
-Grab the latest ISO from the [Releases](../../releases) page:
+Grab the latest ISO from the [Releases](../../releases) page. GitHub
+caps a single release asset at 2 GiB, so the 6.0 GB image ships as four
+sequential parts. Reassemble it first:
 
-```
-ZyraxonOS-9.0.0-amd64.iso
+```bash
+cat part_00 part_01 part_02 part_03 > ZyraxonOS-9.0.0-amd64.iso
+sha256sum ZyraxonOS-9.0.0-amd64.iso   # compare against SHA256SUMS.txt
 ```
 
-Write it to a USB stick and boot it:
+Then write it to a USB stick and boot it:
 
 ```bash
 sudo dd if=ZyraxonOS-9.0.0-amd64.iso of=/dev/sdX bs=4M status=progress oflag=sync

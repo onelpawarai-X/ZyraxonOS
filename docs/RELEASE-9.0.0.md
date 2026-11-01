@@ -9,10 +9,12 @@ agent permanently installed and a full security toolkit baked in.
 - **Real glass desktop.** Hyprland (Wayland) replaces the old XFCE shell.
   Every window has GPU blur, vibrancy, 22px rounded corners, drop shadows
   and smooth spring animations.
-- **Floating glass top bar.** A translucent Waybar with workspaces, clock,
-  system tray, audio, network, Bluetooth, battery and a power button.
-- **Glass launcher and toasts.** Wofi launcher and Dunst notifications,
-  both frosted.
+- **Floating glass bar.** A translucent Quickshell (ii) bar pinned to the
+  bottom of the screen, with workspaces, clock, system tray, audio,
+  network, Bluetooth, battery and a power button.
+- **Glass launcher and toasts.** The `fuzzel` app launcher opens on
+  `Super`, and Dunst notifications are frosted. The bar sits at the bottom
+  of the screen by default.
 - **New Aurora wallpaper** and a matching glass accent palette.
 
 ### ZYRAXON AI, built in permanently
