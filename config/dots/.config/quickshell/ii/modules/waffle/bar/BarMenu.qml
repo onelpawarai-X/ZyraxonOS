@@ -1,3 +1,4 @@
+import Qt.labs.qmlmodels
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

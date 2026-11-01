@@ -1,4 +1,5 @@
 pragma ComponentBehavior: Bound
+import Qt.labs.qmlmodels
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets

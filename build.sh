@@ -96,7 +96,7 @@ apt-get install -y --no-install-recommends \
   qml6-module-qtquick-shapes qml6-module-qtquick-dialogs \
   qml6-module-qt5compat-graphicaleffects qml6-module-qtqml \
   qml6-module-qtqml-models qml6-module-qtqml-workerscript \
-  qml6-module-qt-labs-folderlistmodel \
+  qml6-module-qt-labs-folderlistmodel qml6-module-qt-labs-qmlmodels \
   qml6-module-org-kde-kirigami qml6-module-org-kde-syntaxhighlighting 2>&1 | tail -2
 
 echo "[inner] installing the glass shell bits"
